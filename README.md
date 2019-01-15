@@ -26,4 +26,4 @@ Manager：是被Container用来管理Session池。
 
 Realm：是用来处理安全里授权与认证。
 
-https://github.com/huang054/test/blob/master/apache-tomcat-8.0.43-src/tomcat.png
+![tomcat的主要组件关系图](https://github.com/huang054/test/blob/master/apache-tomcat-8.0.43-src/tomcat.png)
