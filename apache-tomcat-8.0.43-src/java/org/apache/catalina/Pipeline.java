@@ -47,6 +47,7 @@ public interface Pipeline {
      * @return the Valve instance that has been distinguished as the basic
      * Valve for this Pipeline (if any).
      */
+    // 获取基本阀门
     public Valve getBasic();
 
 
@@ -62,6 +63,7 @@ public interface Pipeline {
      *
      * @param valve Valve to be distinguished as the basic Valve
      */
+    // 设置基本阀门
     public void setBasic(Valve valve);
 
 
@@ -91,6 +93,7 @@ public interface Pipeline {
      * @exception IllegalStateException if the specified Valve is already
      *  associated with a different Container
      */
+    // 添加阀门
     public void addValve(Valve valve);
 
 
@@ -99,6 +102,7 @@ public interface Pipeline {
      * Container, including the basic Valve (if any).  If there are no
      * such Valves, a zero-length array is returned.
      */
+    // 获取阀门数组
     public Valve[] getValves();
 
 
@@ -114,6 +118,7 @@ public interface Pipeline {
      *
      * @param valve Valve to be removed
      */
+    // 删除阀门
     public void removeValve(Valve valve);
 
 
@@ -121,18 +126,21 @@ public interface Pipeline {
      * @return the Valve instance that has been distinguished as the basic
      * Valve for this Pipeline (if any).
      */
+    // 获取首个阀门
     public Valve getFirst();
 
     /**
      * Returns true if all the valves in this pipeline support async, false otherwise
      * @return true if all the valves in this pipeline support async, false otherwise
      */
+    // 管道内所有阀门是否异步执行
     public boolean isAsyncSupported();
 
 
     /**
      * @return the Container with which this Pipeline is associated.
      */
+    // 获取管道所属的容器
     public Container getContainer();
 
 
@@ -141,6 +149,7 @@ public interface Pipeline {
      *
      * @param container The new associated container
      */
+    // 设置管道所属的容器
     public void setContainer(Container container);
 
 }

@@ -156,7 +156,7 @@ public final class ClassLoaderFactory {
 
         // Construct the "class path" for this class loader
         Set<URL> set = new LinkedHashSet<>();
-
+// 遍历repositories，对每个repository进行类型判断，并生成URL，每个URL我们都要校验其有效性，有效的URL我们会放到URL集合中
         if (repositories != null) {
             for (Repository repository : repositories)  {
                 if (repository.getType() == RepositoryType.URL) {
@@ -222,7 +222,7 @@ public final class ClassLoaderFactory {
             for (int i = 0; i < array.length; i++) {
                 log.debug("  location " + i + " is " + array[i]);
             }
-
+        // 从这儿看，最终所有的类加载器都是URLClassLoader的对象~~
         return AccessController.doPrivileged(
                 new PrivilegedAction<URLClassLoader>() {
                     @Override
@@ -237,6 +237,7 @@ public final class ClassLoaderFactory {
 
     private static boolean validateFile(File file,
             RepositoryType type) throws IOException {
+        // 对于目录类型或者jar集合目录类型，我们会校验是否为目录和是否可读
         if (RepositoryType.DIR == type || RepositoryType.GLOB == type) {
             if (!file.exists() || !file.isDirectory() || !file.canRead()) {
                 String msg = "Problem with directory [" + file +
@@ -262,6 +263,7 @@ public final class ClassLoaderFactory {
                 }
                 return false;
             }
+            // 对于JAR，我们会校验文件是否可读
         } else if (RepositoryType.JAR == type) {
             if (!file.exists() || !file.canRead()) {
                 log.warn("Problem with JAR file [" + file +

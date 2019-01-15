@@ -73,7 +73,8 @@ public final class ApplicationFilterFactory {
             return (null);
 
         boolean comet = false;
-
+        // 1. 如果加密打开了，则可能会多次调用这个方法
+        // 2. 为了避免重复生成filterChain对象，所以会将filterChain对象放在Request里面进行缓存
         // Create and initialize a filter chain object
         ApplicationFilterChain filterChain = null;
         if (request instanceof Request) {
@@ -104,6 +105,7 @@ public final class ApplicationFilterFactory {
 
         // Acquire the filter mappings for this Context
         StandardContext context = (StandardContext) wrapper.getParent();
+        // 从这儿看出过滤器链对象里面的元素是根据Context里面的filterMaps来生成的
         FilterMap filterMaps[] = context.findFilterMaps();
 
         // If there are no filter mappings, we are done
@@ -112,7 +114,7 @@ public final class ApplicationFilterFactory {
 
         // Acquire the information we will need to match filter mappings
         String servletName = wrapper.getName();
-
+        // 类型和路径都匹配的情况下，将context.filterConfig放到过滤器链里面
         // Add the relevant path-mapped filters to this filter chain
         for (int i = 0; i < filterMaps.length; i++) {
             if (!matchDispatcher(filterMaps[i] ,dispatcher)) {
@@ -144,7 +146,7 @@ public final class ApplicationFilterFactory {
                 filterChain.addFilter(filterConfig);
             }
         }
-
+        // 类型和servlet名称都匹配的情况下，将context.filterConfig放到过滤器链里面
         // Add filters that match on servlet name second
         for (int i = 0; i < filterMaps.length; i++) {
             if (!matchDispatcher(filterMaps[i] ,dispatcher)) {

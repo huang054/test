@@ -46,7 +46,7 @@ public interface Valve {
 
 
     //-------------------------------------------------------------- Properties
-
+    // 获取下一个阀门
     /**
      * Return the next Valve in the pipeline containing this Valve, if any.
      */
@@ -58,6 +58,7 @@ public interface Valve {
      *
      * @param valve The new next valve, or <code>null</code> if none
      */
+    // 设置下一个阀门
     public void setNext(Valve valve);
 
 
@@ -69,6 +70,7 @@ public interface Valve {
      * invoked inside the classloading context of this container. Unexpected
      * throwables will be caught and logged.
      */
+    // 后台执行逻辑，主要在类加载上下文中使用到
     public void backgroundProcess();
 
 
@@ -119,6 +121,7 @@ public interface Valve {
      * @exception ServletException if a servlet error occurs, or is thrown
      *  by a subsequently invoked Valve, Filter, or Servlet
      */
+    // 执行业务逻辑
     public void invoke(Request request, Response response)
         throws IOException, ServletException;
 
@@ -137,7 +140,7 @@ public interface Valve {
     public void event(Request request, Response response, CometEvent event)
         throws IOException, ServletException;
 
-
+    // 是否异步执行
     public boolean isAsyncSupported();
 
 

@@ -61,6 +61,7 @@ public class StandardEngine extends ContainerBase implements Engine {
     /**
      * Create a new StandardEngine component with the default basic Valve.
      */
+    //使用默认的基础阀门创建标准Engine组件
     public StandardEngine() {
 
         super();
@@ -209,6 +210,7 @@ public class StandardEngine extends ContainerBase implements Engine {
      *
      * @param child Child container to be added
      */
+    //Host作为其子容器添加到子容器列表中，非Host在添加子容器的时候会抛异常！
     @Override
     public void addChild(Container child) {
 
@@ -226,6 +228,7 @@ public class StandardEngine extends ContainerBase implements Engine {
      *
      * @param container Proposed parent Container
      */
+    //Engine为tomcat中的顶级容器，所以没有父容器了，当调用setParent时将抛出异常。
     @Override
     public void setParent(Container container) {
 
@@ -347,6 +350,9 @@ public class StandardEngine extends ContainerBase implements Engine {
     /**
      * Return the parent class loader for this component.
      */
+    //getParentClassLoader和Service中同名的该方法一样，先判断父类加载器是否存在，存在的话直接返回。因为Engine肯定属于某一个Service，所以service不会为null，在父类加载器不存在的情况下，会获取Service的parentClassLoader
+    //
+
     @Override
     public ClassLoader getParentClassLoader() {
         if (parentClassLoader != null)

@@ -67,6 +67,7 @@ final class StandardEngineValve extends ValveBase {
      * @exception IOException if an input/output error occurred
      * @exception ServletException if a servlet error occurred
      */
+    //选择合适的Host，然后调用Host中pipeline的第一个Valve的invoke()方法
     @Override
     public final void invoke(Request request, Response response)
         throws IOException, ServletException {

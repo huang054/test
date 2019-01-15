@@ -48,11 +48,11 @@ public abstract class ValveBase extends LifecycleMBeanBase
     implements Contained, Valve {
 
     //------------------------------------------------------ Constructor
-
+    // 无参构造方法，默认不支持异步
     public ValveBase() {
         this(false);
     }
-
+    // 有参构造方法，可传入异步支持标记
     public ValveBase(boolean asyncSupported) {
         this.asyncSupported = asyncSupported;
     }
@@ -61,29 +61,34 @@ public abstract class ValveBase extends LifecycleMBeanBase
     /**
      * Does this valve support Servlet 3+ async requests?
      */
+    // 异步标记
     protected boolean asyncSupported;
 
     /**
      * The Container whose pipeline this Valve is a component of.
      */
+    // 所属容器
     protected Container container = null;
 
 
     /**
      * Container log
      */
+    // 容器日志组件对象
     protected Log containerLog = null;
 
 
     /**
      * The next Valve in the pipeline this Valve is a component of.
      */
+    // 下一个阀门
     protected Valve next = null;
 
 
     /**
      * The string manager for this package.
      */
+    // 国际化管理器，可以支持多国语言
     protected static final StringManager sm =
         StringManager.getManager(Constants.Package);
 
@@ -94,6 +99,7 @@ public abstract class ValveBase extends LifecycleMBeanBase
     /**
      * Return the Container with which this Valve is associated, if any.
      */
+    // 获取所属容器
     @Override
     public Container getContainer() {
 
@@ -101,13 +107,13 @@ public abstract class ValveBase extends LifecycleMBeanBase
 
     }
 
-
+    // 是否异步执行
     @Override
     public boolean isAsyncSupported() {
         return asyncSupported;
     }
 
-
+    // 设置是否异步执行
     public void setAsyncSupported(boolean asyncSupported) {
         this.asyncSupported = asyncSupported;
     }
@@ -118,6 +124,7 @@ public abstract class ValveBase extends LifecycleMBeanBase
      *
      * @param container The new associated container
      */
+    // 设置所属容器
     @Override
     public void setContainer(Container container) {
 
@@ -130,6 +137,7 @@ public abstract class ValveBase extends LifecycleMBeanBase
      * Return the next Valve in this pipeline, or <code>null</code> if this
      * is the last Valve in the pipeline.
      */
+    // 获取下一个待执行的阀门
     @Override
     public Valve getNext() {
 
@@ -143,6 +151,7 @@ public abstract class ValveBase extends LifecycleMBeanBase
      *
      * @param valve The new next valve
      */
+    // 设置下一个待执行的阀门
     @Override
     public void setNext(Valve valve) {
 
@@ -159,6 +168,7 @@ public abstract class ValveBase extends LifecycleMBeanBase
      * invoked inside the classloading context of this container. Unexpected
      * throwables will be caught and logged.
      */
+    // 后台执行，子类实现
     @Override
     public void backgroundProcess() {
         // NOOP by default
@@ -202,11 +212,11 @@ public abstract class ValveBase extends LifecycleMBeanBase
         getNext().event(request, response, event);
     }
 
-
+    // 初始化逻辑
     @Override
     protected void initInternal() throws LifecycleException {
         super.initInternal();
-
+// 设置容器日志组件对象到当前阀门的containerLog属性
         containerLog = getContainer().getLogger();
     }
 
@@ -218,6 +228,7 @@ public abstract class ValveBase extends LifecycleMBeanBase
      * @exception LifecycleException if this component detects a fatal error
      *  that prevents this component from being used
      */
+    // 启动逻辑
     @Override
     protected synchronized void startInternal() throws LifecycleException {
 
@@ -232,6 +243,7 @@ public abstract class ValveBase extends LifecycleMBeanBase
      * @exception LifecycleException if this component detects a fatal error
      *  that prevents this component from being used
      */
+    // 停止逻辑
     @Override
     protected synchronized void stopInternal() throws LifecycleException {
 
@@ -242,6 +254,7 @@ public abstract class ValveBase extends LifecycleMBeanBase
     /**
      * Return a String rendering of this object.
      */
+    // 重写toString，格式为[${containerName}]
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(this.getClass().getName());
@@ -257,6 +270,7 @@ public abstract class ValveBase extends LifecycleMBeanBase
 
 
     // -------------------- JMX and Registration  --------------------
+    // 设置获取MBean对象的keyProperties，格式如：a=b,c=d,e=f...
     @Override
     public String getObjectNameKeyProperties() {
         StringBuilder name = new StringBuilder("type=Valve");
@@ -302,7 +316,7 @@ public abstract class ValveBase extends LifecycleMBeanBase
 
         return name.toString();
     }
-
+    // 获取所属域，从container获取
     @Override
     public String getDomainInternal() {
         Container c = getContainer();

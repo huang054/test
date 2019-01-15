@@ -93,15 +93,20 @@ public abstract class LifecycleBase implements Lifecycle {
 
     @Override
     public final synchronized void init() throws LifecycleException {
+        // 非NEW状态，不允许调用init()方法
         if (!state.equals(LifecycleState.NEW)) {
             invalidTransition(Lifecycle.BEFORE_INIT_EVENT);
         }
 
         try {
+            // 初始化逻辑之前，先将状态变更为`INITIALIZING`
             setStateInternal(LifecycleState.INITIALIZING, null, false);
+            // 初始化，该方法为一个abstract方法，需要组件自行实现比如server  service 等等
             initInternal();
+            // 初始化完成之后，状态变更为`INITIALIZED`
             setStateInternal(LifecycleState.INITIALIZED, null, false);
         } catch (Throwable t) {
+            // 初始化的过程中，可能会有异常抛出，这时需要捕获异常，并将状态变更为`FAILED`
             ExceptionUtils.handleThrowable(t);
             setStateInternal(LifecycleState.FAILED, null, false);
             throw new LifecycleException(
@@ -115,9 +120,10 @@ public abstract class LifecycleBase implements Lifecycle {
     /**
      * {@inheritDoc}
      */
+    //Lifecycle的模板方法基本逻辑和stop destory一样  定义了一个抽象的方法给server service 来实现
     @Override
     public final synchronized void start() throws LifecycleException {
-
+        // `STARTING_PREP`、`STARTING`和`STARTED时，将忽略start()逻辑
         if (LifecycleState.STARTING_PREP.equals(state) || LifecycleState.STARTING.equals(state) ||
                 LifecycleState.STARTED.equals(state)) {
 
@@ -130,19 +136,24 @@ public abstract class LifecycleBase implements Lifecycle {
 
             return;
         }
-
+        // `NEW`状态时，执行init()方法
         if (state.equals(LifecycleState.NEW)) {
             init();
+            // `FAILED`状态时，执行stop()方法
         } else if (state.equals(LifecycleState.FAILED)) {
             stop();
+            // 不是`INITIALIZED`和`STOPPED`时，则说明是非法的操作
         } else if (!state.equals(LifecycleState.INITIALIZED) &&
                 !state.equals(LifecycleState.STOPPED)) {
             invalidTransition(Lifecycle.BEFORE_START_EVENT);
         }
 
         try {
+            // start前的状态设置
             setStateInternal(LifecycleState.STARTING_PREP, null, false);
+            // start逻辑，抽象方法，由组件自行实现
             startInternal();
+            // start过程中，可能因为某些原因失败，这时需要stop操作
             if (state.equals(LifecycleState.FAILED)) {
                 // This is a 'controlled' failure. The component put itself into the
                 // FAILED state so call stop() to complete the clean-up.
@@ -152,6 +163,7 @@ public abstract class LifecycleBase implements Lifecycle {
                 // doing what they are supposed to.
                 invalidTransition(Lifecycle.AFTER_START_EVENT);
             } else {
+                // 设置状态为STARTED
                 setStateInternal(LifecycleState.STARTED, null, false);
             }
         } catch (Throwable t) {
@@ -347,14 +359,14 @@ public abstract class LifecycleBase implements Lifecycle {
             throws LifecycleException {
         setStateInternal(state, data, true);
     }
-
+//setStateInternal方法用于维护状态，同时在状态转换成功之后触发事件。为了状态的可见性，所以state声明为volatile类型的
     private synchronized void setStateInternal(LifecycleState state,
             Object data, boolean check) throws LifecycleException {
 
         if (log.isDebugEnabled()) {
             log.debug(sm.getString("lifecycleBase.setState", this, state));
         }
-
+        // 是否校验状态
         if (check) {
             // Must have been triggered by one of the abstract methods (assume
             // code in this class is correct)
@@ -381,8 +393,9 @@ public abstract class LifecycleBase implements Lifecycle {
                 invalidTransition(state.name());
             }
         }
-
+        // 设置状态
         this.state = state;
+        // 触发事件
         String lifecycleEvent = state.getLifecycleEvent();
         if (lifecycleEvent != null) {
             fireLifecycleEvent(lifecycleEvent, data);

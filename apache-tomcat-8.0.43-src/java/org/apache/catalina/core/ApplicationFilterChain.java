@@ -174,6 +174,9 @@ final class ApplicationFilterChain implements FilterChain, CometFilterChain {
      * @exception IOException if an input/output error occurs
      * @exception ServletException if a servlet exception occurs
      */
+    // 1. `doFilter`方法会对异常进行重新抛出，也就是将检查性异常变更为运行时异常
+// 2. `doFilter`如果访问授权开关打开，则会有访问鉴权
+// 3. `doFilter`最终会调用internalDoFilter方法
     @Override
     public void doFilter(ServletRequest request, ServletResponse response)
         throws IOException, ServletException {
@@ -207,7 +210,8 @@ final class ApplicationFilterChain implements FilterChain, CometFilterChain {
             internalDoFilter(request,response);
         }
     }
-
+    // 1. `internalDoFilter`方法通过pos和n来调用过滤器链里面的每个过滤器。pos表示当前的过滤器下标，n表示总的过滤器数量
+// 2. `internalDoFilter`方法最终会调用servlet.service()方法
     private void internalDoFilter(ServletRequest request,
                                   ServletResponse response)
         throws IOException, ServletException {
@@ -533,6 +537,9 @@ final class ApplicationFilterChain implements FilterChain, CometFilterChain {
     /**
      * Release references to the filters and wrapper executed by this chain.
      */
+    //过滤器置为null，help gc
+    //n和pos置为0
+    //servlet置为null
     void release() {
 
         for (int i = 0; i < n; i++) {

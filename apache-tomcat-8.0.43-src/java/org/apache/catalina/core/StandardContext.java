@@ -1807,6 +1807,7 @@ public class StandardContext extends ContainerBase
             if (getState().isAvailable() && (oldLoader != null) &&
                 (oldLoader instanceof Lifecycle)) {
                 try {
+                    // 旧的加载器停止
                     ((Lifecycle) oldLoader).stop();
                 } catch (LifecycleException e) {
                     log.error("StandardContext.setLoader: stop: ", e);
@@ -1819,6 +1820,7 @@ public class StandardContext extends ContainerBase
             if (getState().isAvailable() && (loader != null) &&
                 (loader instanceof Lifecycle)) {
                 try {
+                    // 新的加载器启动
                     ((Lifecycle) loader).start();
                 } catch (LifecycleException e) {
                     log.error("StandardContext.setLoader: start: ", e);
@@ -5061,6 +5063,7 @@ public class StandardContext extends ContainerBase
      * @exception LifecycleException if this component detects a fatal error
      *  that prevents this component from being used
      */
+    //webappLoader不存在的时候创建一个，并调用setLoader方法
     @Override
     protected synchronized void startInternal() throws LifecycleException {
 

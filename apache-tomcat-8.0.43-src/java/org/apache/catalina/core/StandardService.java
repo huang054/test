@@ -557,7 +557,7 @@ public class StandardService extends LifecycleMBeanBase implements Service {
             }
             executor.init();
         }
-
+//Mapper的作用，主要是通过请求url快速和精确地找到相应的Wrapper
         // Initialize mapper listener
         mapperListener.init();
 

@@ -795,6 +795,7 @@ public class StandardWrapper extends ContainerBase
     public Servlet allocate() throws ServletException {
 
         // If we are currently unloading this servlet, throw an exception
+        // 卸载过程中，不能分配Servlet
         if (unloading) {
             throw new ServletException(sm.getString("standardWrapper.unloading", getName()));
         }
@@ -802,8 +803,10 @@ public class StandardWrapper extends ContainerBase
         boolean newInstance = false;
 
         // If not SingleThreadedModel, return the same instance every time
+        // 如果Wrapper没有实现SingleThreadedModel，则每次都会返回同一个Servlet
         if (!singleThreadModel) {
             // Load and initialize our instance if necessary
+            // 实例为null或者实例还未初始化，使用synchronized来保证并发时的原子性
             if (instance == null || !instanceInitialized) {
                 synchronized (this) {
                     if (instance == null) {
@@ -814,6 +817,7 @@ public class StandardWrapper extends ContainerBase
 
                             // Note: We don't know if the Servlet implements
                             // SingleThreadModel until we have loaded it.
+                            // 加载Servlet
                             instance = loadServlet();
                             newInstance = true;
                             if (!singleThreadModel) {
@@ -829,6 +833,7 @@ public class StandardWrapper extends ContainerBase
                             throw new ServletException(sm.getString("standardWrapper.allocate"), e);
                         }
                     }
+                    // 初始化Servlet
                     if (!instanceInitialized) {
                         initServlet(instance);
                     }
@@ -845,6 +850,7 @@ public class StandardWrapper extends ContainerBase
                     }
                 }
             } else {
+                // 非单线程模型，直接返回已经创建的Servlet，也就是说，这种情况下只会创建一个Servlet
                 if (log.isTraceEnabled()) {
                     log.trace("  Returning non-STM instance");
                 }
@@ -856,7 +862,7 @@ public class StandardWrapper extends ContainerBase
                 return instance;
             }
         }
-
+        // 如果是单线程模式，则使用servlet对象池技术来加载多个Servlet
         synchronized (instancePool) {
             while (countAllocated.get() >= nInstances) {
                 // Allocate a new instance if possible, or else wait
@@ -896,6 +902,8 @@ public class StandardWrapper extends ContainerBase
      *
      * @exception ServletException if a deallocation error occurs
      */
+    //如果是非单线程模型，直接返回。
+    //如果是单线程模型，则将Servlet对象放回对象池。
     @Override
     public void deallocate(Servlet servlet) throws ServletException {
 
@@ -1085,7 +1093,7 @@ public class StandardWrapper extends ContainerBase
                 throw new ServletException
                     (sm.getString("standardWrapper.notClass", getName()));
             }
-
+            // 关键的地方，就是通过实例管理器，创建Servlet实例，而实例管理器是通过特殊的类加载器来加载给定的类
             InstanceManager instanceManager = ((StandardContext)getParent()).getInstanceManager();
             try {
                 servlet = (Servlet) instanceManager.newInstance(servletClass);
@@ -1136,7 +1144,7 @@ public class StandardWrapper extends ContainerBase
                 }
                 singleThreadModel = true;
             }
-
+            // 调用Servlet的init方法
             initServlet(servlet);
 
             fireContainerEvent("load", this);
@@ -1386,12 +1394,15 @@ public class StandardWrapper extends ContainerBase
     public synchronized void unload() throws ServletException {
 
         // Nothing to do if we have never loaded the instance
+        // 如果实例未加载，那么什么事情都不做
         if (!singleThreadModel && (instance == null))
             return;
+        // 设置正在卸载标记为true
         unloading = true;
 
         // Loaf a while if the current instance is allocated
         // (possibly more than once if non-STM)
+        // 当前有实例已经分配了，则需要等待分配的实例完成处理。所以这儿会有线程休眠操作
         if (countAllocated.get() > 0) {
             int nRetries = 0;
             long delay = unloadDelay / 20;
@@ -1417,6 +1428,7 @@ public class StandardWrapper extends ContainerBase
             }
 
             // Call the servlet destroy() method
+            // 如果为非单线程模型，则调用servlet的destroy方法
             try {
                 instanceSupport.fireInstanceEvent
                   (InstanceEvent.BEFORE_DESTROY_EVENT, instance);
@@ -1473,13 +1485,14 @@ public class StandardWrapper extends ContainerBase
         }
 
         // Deregister the destroyed instance
+        // 将销毁的servlet从jmx中unregister操作
         instance = null;
         instanceInitialized = false;
 
         if (isJspServlet && jspMonitorON != null ) {
             Registry.getRegistry(null, null).unregisterComponent(jspMonitorON);
         }
-
+        // 如果是单线程模型，需要将servlet进行出栈(pop）操作，并调用servlet的destory方法
         if (singleThreadModel && (instancePool != null)) {
             try {
                 while (!instancePool.isEmpty()) {
@@ -1514,8 +1527,9 @@ public class StandardWrapper extends ContainerBase
         }
 
         singleThreadModel = false;
-
+        // 卸载完成，卸载标记置为false
         unloading = false;
+        // 发送容器unload事件
         fireContainerEvent("unload", this);
 
     }
