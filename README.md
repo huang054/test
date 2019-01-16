@@ -7,7 +7,7 @@ Service：Service是包含Connector和Container的集合，Service用适当的Co
 Connector：实现某一协议的连接器，如默认的有实现HTTP、HTTPS、AJP协议的。
 
 Container：可以理解为处理某类型请求的容器，处理的方式一般为把处理请求的处理器包装为Valve对象，并按一定顺序放入类型为Pipeline的管道里。Container有多种子类型：Engine、Host、Context和Wrapper，这几种子类型Container依次包含，处理不同粒度的请求。另外Container里包含一些基础服务，如Loader、Manager和Realm。
-
+通过start方法调用service方法调用aAdapter得service方法到engine得pipeline阀门
 Engine：Engine包含Host和Context，接到请求后仍给相应的Host在相应的Context里处理，然后到wrapper。
 
 Host：就是我们所理解的虚拟主机。
