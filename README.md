@@ -1,6 +1,6 @@
 Catalina：与开始/关闭shell脚本交互的主类，因此如果要研究启动和关闭的过程，就从这个类开始看起。
 
-Server：是整个Tomcat组件的容器，包含一个或多个Service。 内容来自www.itxxz.com
+Server：是整个Tomcat组件的容器，包含一个或多个Service
 
 Service：Service是包含Connector和Container的集合，Service用适当的Connector接收用户的请求，再发给相应的Container来处理。
 
